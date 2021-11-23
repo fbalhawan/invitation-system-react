@@ -17,6 +17,11 @@ const darkTheme = createTheme({
           default: "#121212"
       }
     },
+    typography:{
+        allVariants:{
+            color: "white"
+        }
+    }
   });
 
 ReactDOM.render(

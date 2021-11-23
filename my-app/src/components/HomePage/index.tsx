@@ -4,7 +4,7 @@ import PartnersApi from "../../api/partners";
 import { Partner } from "../../interfaces/partner";
 import mainLogo from "../../public/main-logo.png";
 import PartnerCard from "../PartnerCard";
-import { Card, CardContent, CardHeader, Container, Grid, TextField, Slider, typographyClasses, CardMedia } from '@mui/material';
+import { Container, Grid, TextField, Slider, typographyClasses, CardMedia, Typography, Box, CircularProgress } from '@mui/material';
 
 
 const Homepage: React.FC = () => {
@@ -12,21 +12,32 @@ const Homepage: React.FC = () => {
     const [partners, setPartners] = useState<Partner[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [range, setRange] = useState<number>(maxRange);
-
+    const [rangeVal, setRangeVal] = useState<number>(maxRange);
+    const [loading, setLoading] = useState<boolean>(false);
+    const marks = [
+        {
+            value: 0,
+            label: '0 Km',
+        },
+        {
+            value: maxRange,
+            label: maxRange + " Km",
+        },
+    ];
 
 
     const getPartners = () => {
+        setLoading(true);
+        console.log("searchTerm",searchTerm);
         PartnersApi.search(searchTerm, range).then((response) => {
-            console.log("Response", response);
             setPartners(response.data);
-            console.log("partners", partners);
-
+            setLoading(false);
         });
     }
 
     const searchByTerm = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
-        getPartners();
+        // getPartners();
     }
 
     const changeRange = (e: Event, newValue: number | number[], activeThumb: number) => {
@@ -34,32 +45,37 @@ const Homepage: React.FC = () => {
     }
 
     const searchByRange = (e: React.SyntheticEvent | Event, newValue: number | number[]) => {
-
-
-        getPartners();
+        setRangeVal(newValue as number);
+        // getPartners();
     }
 
     useEffect(() => {
         getPartners();
-    }, []);
+    }, [searchTerm, rangeVal]);
 
     return (
 
         <Container maxWidth="xl">
             <img src={mainLogo} />
-            <p className={typographyClasses.paragraph} style={{ color: "white" }}>The Washmen invitation system</p>
-            <br/>
+            <Typography className={typographyClasses.paragraph}>The Washmen invitation system</Typography>
+            <br />
             <Grid container direction="row" spacing={3}>
                 <Grid item md={3} sm={3} xs={12}>
                     <TextField id="outlined-basic" label="Organization Name" variant="outlined" value={searchTerm} onChange={searchByTerm} />
                 </Grid>
                 <Grid item md={3} sm={3} xs={12}>
+                    <Typography>Distance</Typography>
                     <Slider aria-label="Range" value={range}
                         valueLabelDisplay="auto" min={0}
-
+                        marks={marks}
                         max={maxRange} step={500} onChangeCommitted={searchByRange} onChange={changeRange} />
                 </Grid>
             </Grid>
+            {
+                loading ?
+                    <CircularProgress />
+                    : null
+            }
 
 
             <Grid container
